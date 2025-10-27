@@ -12,9 +12,5 @@ namespace TecWebFest.Api.Entities
 
         // 1:N Festival -> Stages
         public ICollection<Stage> Stages { get; set; } = new List<Stage>();
-
-
-        // Optional: Tickets sold for this festival
-        public ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
     }
 }

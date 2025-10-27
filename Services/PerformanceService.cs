@@ -2,6 +2,7 @@ using TecWebFest.Api.DTOs;
 using TecWebFest.Api.Entities;
 using TecWebFest.Api.Repositories.Interfaces;
 using TecWebFest.Api.Services.Interfaces;
+using TecWebFest.Repositories;
 
 namespace TecWebFest.Api.Services
 {
@@ -23,6 +24,13 @@ namespace TecWebFest.Api.Services
 
         public async Task AddPerformanceAsync(CreatePerformanceDto dto)
         {
+            var startUtc = dto.StartTime.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(dto.StartTime, DateTimeKind.Utc)
+                : dto.StartTime.ToUniversalTime();
+
+            var endUtc = dto.EndTime.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(dto.EndTime, DateTimeKind.Utc)
+                : dto.EndTime.ToUniversalTime();
             // Validaciones mínimas (puedes dejarlas opcionales para el examen)
             if (dto.EndTime <= dto.StartTime)
                 throw new ArgumentException("EndTime must be greater than StartTime.");
@@ -34,7 +42,7 @@ namespace TecWebFest.Api.Services
                 throw new ArgumentException("Stage not found.");
 
             // BONUS: evitar solapamiento en la misma Stage
-            var overlaps = await _performances.HasOverlapAsync(dto.StageId, dto.StartTime, dto.EndTime);
+            var overlaps = await _performances.HasOverlapAsync(dto.StageId, startUtc, endUtc);
             if (overlaps)
                 throw new InvalidOperationException("The stage already has a performance in this time range.");
 
@@ -42,9 +50,10 @@ namespace TecWebFest.Api.Services
             {
                 ArtistId = dto.ArtistId,
                 StageId = dto.StageId,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime
+                StartTime = DateTime.SpecifyKind(dto.StartTime, DateTimeKind.Utc),
+                EndTime = DateTime.SpecifyKind(dto.EndTime, DateTimeKind.Utc)
             };
+
 
             await _performances.AddAsync(entity);
             await _performances.SaveChangesAsync();

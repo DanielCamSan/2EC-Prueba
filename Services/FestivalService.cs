@@ -20,8 +20,8 @@ namespace TecWebFest.Api.Services
             {
                 Name = dto.Name,
                 City = dto.City,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
+                StartDate = DateTime.SpecifyKind(dto.StartDate, DateTimeKind.Utc),
+                EndDate = DateTime.SpecifyKind(dto.EndDate, DateTimeKind.Utc),
                 Stages = dto.Stages.Select(s => new Stage { Name = s.Name }).ToList()
             };
 
@@ -29,6 +29,7 @@ namespace TecWebFest.Api.Services
             await _festivals.SaveChangesAsync();
             return entity.Id;
         }
+
 
         public async Task<FestivalLineupDto?> GetLineupAsync(int id)
         {

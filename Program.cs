@@ -16,6 +16,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
+builder.Services.AddScoped<IFestivalRepository, FestivalRepository>();
+builder.Services.AddScoped<IPerformanceRepository, PerformanceRepository>();
+builder.Services.AddScoped<IStageRepository, StageRepository>();
+builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IFestivalService, FestivalService>();
+builder.Services.AddScoped<IPerformanceService, PerformanceService>();
+
 //TODO INYECCION DE DEPENDENCIAS
 var app = builder.Build();
 
