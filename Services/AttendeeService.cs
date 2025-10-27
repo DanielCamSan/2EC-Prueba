@@ -2,32 +2,31 @@ using TecWebFest.Api.DTOs;
 using TecWebFest.Api.Entities;
 using TecWebFest.Api.Repositories.Interfaces;
 using TecWebFest.Api.Services.Interfaces;
+using TecWebFest.Repositories;
 
 namespace TecWebFest.Api.Services
 {
     public class AttendeeService : IAttendeeService
     {
         private readonly IAttendeeRepository _attendees;
-        private readonly IGenericRepository<Attendee> _attendeeCrud;
-        private readonly IGenericRepository<AttendeeProfile> _profiles;
-        private readonly IGenericRepository<Ticket> _tickets;
+        private readonly IAttendeeProfileRepository _profiles;
+        private readonly ITicketRepository _tickets;
 
-        public AttendeeService(IAttendeeRepository attendees,
-                               IGenericRepository<Attendee> attendeeCrud,
-                               IGenericRepository<AttendeeProfile> profiles,
-                               IGenericRepository<Ticket> tickets)
+        public AttendeeService(
+            IAttendeeRepository attendees,
+            IAttendeeProfileRepository profiles,
+            ITicketRepository tickets)
         {
             _attendees = attendees;
-            _attendeeCrud = attendeeCrud;
-            _profiles = profiles;
-            _tickets = tickets;
+            _profiles  = profiles;
+            _tickets   = tickets;
         }
 
         public async Task<int> RegisterAsync(RegisterAttendeeDto dto)
         {
             var a = new Attendee { FullName = dto.FullName, Email = dto.Email };
-            await _attendeeCrud.AddAsync(a);
-            await _attendeeCrud.SaveChangesAsync();
+            await _attendees.AddAsync(a);
+            await _attendees.SaveChangesAsync(); // guarda para obtener Id
 
             if (dto.DocumentId != null && dto.BirthDate != null)
             {
@@ -35,7 +34,7 @@ namespace TecWebFest.Api.Services
                 {
                     AttendeeId = a.Id,
                     DocumentId = dto.DocumentId!,
-                    BirthDate = dto.BirthDate!.Value
+                    BirthDate  = dto.BirthDate!.Value
                 };
                 await _profiles.AddAsync(p);
                 await _profiles.SaveChangesAsync();
@@ -47,10 +46,10 @@ namespace TecWebFest.Api.Services
         {
             var t = new Ticket
             {
-                AttendeeId = dto.AttendeeId,
-                FestivalId = dto.FestivalId,
-                Category = dto.Category,
-                Price = dto.Price,
+                AttendeeId  = dto.AttendeeId,
+                FestivalId  = dto.FestivalId,
+                Category    = dto.Category,
+                Price       = dto.Price,
                 PurchasedAt = DateTime.UtcNow
             };
             await _tickets.AddAsync(t);
@@ -63,10 +62,10 @@ namespace TecWebFest.Api.Services
             var items = await _attendees.GetTicketsAsync(attendeeId);
             return items.Select(t => new TicketDto
             {
-                Id = t.Id,
-                Festival = t.Festival.Name,
-                Category = t.Category,
-                Price = t.Price,
+                Id          = t.Id,
+                Festival    = t.Festival.Name,
+                Category    = t.Category,
+                Price       = t.Price,
                 PurchasedAt = t.PurchasedAt
             }).ToList();
         }

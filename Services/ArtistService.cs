@@ -8,19 +8,17 @@ namespace TecWebFest.Api.Services
     public class ArtistService : IArtistService
     {
         private readonly IArtistRepository _artists;
-        private readonly IGenericRepository<Artist> _artistCrud;
 
-        public ArtistService(IArtistRepository artists, IGenericRepository<Artist> artistCrud)
+        public ArtistService(IArtistRepository artists)
         {
             _artists = artists;
-            _artistCrud = artistCrud;
         }
 
         public async Task<int> CreateAsync(CreateArtistDto dto)
         {
             var entity = new Artist { StageName = dto.StageName, Genre = dto.Genre };
-            await _artistCrud.AddAsync(entity);
-            await _artistCrud.SaveChangesAsync();
+            await _artists.AddAsync(entity);
+            await _artists.SaveChangesAsync();
             return entity.Id;
         }
 

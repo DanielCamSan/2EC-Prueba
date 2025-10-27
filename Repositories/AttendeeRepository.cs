@@ -5,20 +5,25 @@ using TecWebFest.Api.Repositories.Interfaces;
 
 namespace TecWebFest.Api.Repositories
 {
-    public class AttendeeRepository : GenericRepository<Attendee>, IAttendeeRepository
+    public class AttendeeRepository : IAttendeeRepository
     {
-        private readonly DbSet<Ticket> _tickets;
-        private readonly DbSet<AttendeeProfile> _profiles;
+        private readonly AppDbContext _ctx;
+        public AttendeeRepository(AppDbContext ctx) => _ctx = ctx;
 
-        public AttendeeRepository(AppDbContext ctx) : base(ctx)
+        public async Task AddAsync(Attendee attendee)
         {
-            _tickets = ctx.Set<Ticket>();
-            _profiles = ctx.Set<AttendeeProfile>();
+            await _ctx.Attendees.AddAsync(attendee);
         }
 
-        public Task<IReadOnlyList<Ticket>> GetTicketsAsync(int attendeeId) =>
-            _tickets.Include(t => t.Festival)
-                    .Where(t => t.AttendeeId == attendeeId)
-                    .ToListAsync();
+        public Task<IReadOnlyList<Ticket>> GetTicketsAsync(int attendeeId)
+        {
+            return _ctx.Tickets
+                .Include(t => t.Festival)
+                .Where(t => t.AttendeeId == attendeeId)
+                .ToListAsync()
+                .ContinueWith<IReadOnlyList<Ticket>>(t => t.Result);
+        }
+
+        public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
     }
 }

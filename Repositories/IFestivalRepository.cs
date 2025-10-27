@@ -1,10 +1,12 @@
+using System.Linq.Expressions;
 using TecWebFest.Api.Entities;
 
 namespace TecWebFest.Api.Repositories.Interfaces
 {
-    public interface IFestivalRepository : IGenericRepository<Festival>
+    public interface IFestivalRepository
     {
-        Task<Festival?> GetWithStagesAsync(int id);
+        Task AddAsync(Festival festival);
         Task<Festival?> GetLineupAsync(int id);
+        Task<int> SaveChangesAsync();
     }
 }

@@ -55,12 +55,134 @@ Este starter incluye la solución con:
   - Evitar solapamiento de horarios en Stage (5)
   - o Manejo de errores/paginación/filtros (5)
 
-## Cómo ejecutar
-```bash
-dotnet run --project TecWebFest.Api
-# Swagger: http://localhost:5000/swagger (puede variar el puerto)
-```
+## Cómo evaluar y probar
+✅ 1. Crear un Festival con Stages (1:N)
+
+POST api/v1/festivals
+
+{
+  "name": "TecWebFest 2025",
+  "city": "Cochabamba",
+  "startDate": "2025-07-01",
+  "endDate": "2025-07-03",
+  "stages": [
+    { "name": "Main Stage" },
+    { "name": "Electro Dome" }
+  ]
+}
+
+
+🎤 2. Crear un Artista
+
+POST api/v1/artists
+
+{
+  "stageName": "DJ Infinity",
+  "genre": "Electronic"
+}
+
+🎸 3. Crear otro Artista
+{
+  "stageName": "Rock Masters",
+  "genre": "Rock"
+}
+
+🎭 4. Asignar Performance (N:M con payload)
+
+POST api/v1/artists/performances
+
+{
+  "artistId": 1,
+  "stageId": 1,
+  "startTime": "2025-07-01T20:00:00",
+  "endTime": "2025-07-01T21:30:00"
+}
+
+📅 5. Consultar Lineup del Festival
+
+GET api/v1/festivals/1/lineup
+
+Respuesta esperada (estructura):
+
+{
+  "festival": "TecWebFest 2025",
+  "city": "Cochabamba",
+  "stages": [
+    {
+      "stage": "Main Stage",
+      "performances": [
+        {
+          "artistId": 1,
+          "artist": "DJ Infinity",
+          "startTime": "2025-07-01T20:00:00",
+          "endTime": "2025-07-01T21:30:00"
+        }
+      ]
+    }
+  ]
+}
+
+🧍 6. Registrar Asistente (1:1 opcional con Profile)
+
+POST api/v1/attendees/register
+
+{
+  "fullName": "Juan Pérez",
+  "email": "juan@example.com",
+  "documentId": "12345678",
+  "birthDate": "1998-05-21"
+}
+
+🎫 7. Comprar Ticket (1:N)
+
+POST api/v1/attendees/tickets
+
+{
+  "attendeeId": 1,
+  "festivalId": 1,
+  "price": 120.50,
+  "category": "VIP"
+}
+
+🎟 8. Listar Tickets del Asistente
+
+GET api/v1/attendees/1/tickets
+
+Respuesta esperada:
+
+[
+  {
+    "id": 1,
+    "festival": "TecWebFest 2025",
+    "category": "VIP",
+    "price": 120.50,
+    "purchasedAt": "2025-02-27T15:21:00.000Z"
+  }
+]
+
+🎼 9. Ver Agenda de un Artista
+
+GET api/v1/artists/1/schedule
+
+
+🧪 10. BONUS – Intentar solapamiento (Debe fallar si validan)
+
+POST api/v1/artists/performances
+
+{
+  "artistId": 2,
+  "stageId": 1,
+  "startTime": "2025-07-01T20:30:00",
+  "endTime": "2025-07-01T21:00:00"
+}
+
+
+Respuesta esperada si está implementado el BONUS:
+
+{
+  "error": "The stage already has a performance in this time range."
+}
+
 
 ## Notas
-- Puedes cambiar InMemory por SQLite si deseas, pero no es obligatorio para el examen.
 - El **foco** es demostrar dominio de **relaciones** y **capas** en 90 minutos.

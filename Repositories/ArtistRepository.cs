@@ -5,13 +5,27 @@ using TecWebFest.Api.Repositories.Interfaces;
 
 namespace TecWebFest.Api.Repositories
 {
-    public class ArtistRepository : GenericRepository<Artist>, IArtistRepository
+    public class ArtistRepository : IArtistRepository
     {
-        public ArtistRepository(AppDbContext ctx) : base(ctx) {}
+        private readonly AppDbContext _ctx;
+        public ArtistRepository(AppDbContext ctx) => _ctx = ctx;
 
-        public Task<Artist?> GetScheduleAsync(int id) =>
-            _db.Include(a => a.Performances)
-               .ThenInclude(p => p.Stage)
-               .FirstOrDefaultAsync(a => a.Id == id);
+        public Task<int> SaveChangesAsync() => _ctx.SaveChangesAsync();
+
+        public async Task AddAsync(Artist artist)
+        {
+            await _ctx.Artists.AddAsync(artist);
+        }
+
+        public Task<Artist?> GetScheduleAsync(int id)
+        {
+            return _ctx.Artists
+                .Include(a => a.Performances)
+                    .ThenInclude(p => p.Stage)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+        public Task<bool> ExistsAsync(int id) =>
+        _ctx.Artists.AnyAsync(a => a.Id == id);
+
     }
 }

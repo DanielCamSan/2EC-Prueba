@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using TecWebFest.Api.DTOs;
 using TecWebFest.Api.Entities;
 using TecWebFest.Api.Repositories.Interfaces;
@@ -9,17 +8,14 @@ namespace TecWebFest.Api.Services
     public class FestivalService : IFestivalService
     {
         private readonly IFestivalRepository _festivals;
-        private readonly IGenericRepository<Stage> _stages;
 
-        public FestivalService(IFestivalRepository festivals, IGenericRepository<Stage> stages)
+        public FestivalService(IFestivalRepository festivals)
         {
             _festivals = festivals;
-            _stages = stages;
         }
 
         public async Task<int> CreateFestivalAsync(CreateFestivalDto dto)
         {
-            // Map DTO -> Entity
             var entity = new Festival
             {
                 Name = dto.Name,
